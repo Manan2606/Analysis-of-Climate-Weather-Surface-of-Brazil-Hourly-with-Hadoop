@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" xmlns:sla="uri:oozie:sla:0.1" name="weather-analysis-workflow">
+
+    <!-- Start of the workflow -->
+    <start to="job1"/>
+
+    <!-- Job 1: Average Temperature MapReduce Job -->
+    <action name="job1">
+        <map-reduce>
+            <job-tracker>${jobtracker}</job-tracker>
+            <name-node>${namenode}</name-node>
+            <prepare>
+                <delete path="${outputDir}/job1"/>
+            </prepare>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>default</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>${inputDir}/north.csv</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>${outputDir}/job1</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.class</name>
+                    <value>JobRunner</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Average Temperature Job</value>
+                </property>
+                <property>
+                    <name>jobType</name>
+                    <value>avg_temp</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="job2"/>
+        <error to="fail"/>
+    </action>
+
+    <!-- Job 2: Maximum Wind Speed MapReduce Job -->
+    <action name="job2">
+        <map-reduce>
+            <job-tracker>${jobtracker}</job-tracker>
+            <name-node>${namenode}</name-node>
+            <prepare>
+                <delete path="${outputDir}/job2"/>
+            </prepare>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>default</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>${inputDir}/north.csv</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>${outputDir}/job2</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.class</name>
+                    <value>JobRunner</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Maximum Wind Speed Job</value>
+                </property>
+                <property>
+                    <name>jobType</name>
+                    <value>max_wind</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="job3"/>
+        <error to="fail"/>
+    </action>
+
+    <!-- Job 3: Total Precipitation MapReduce Job -->
+    <action name="job3">
+        <map-reduce>
+            <job-tracker>${jobtracker}</job-tracker>
+            <name-node>${namenode}</name-node>
+            <prepare>
+                <delete path="${outputDir}/job3"/>
+            </prepare>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>default</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>${inputDir}/north.csv</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>${outputDir}/job3</value>
+                </property>
+                <property>
+                    <name>oozie.launcher.mapreduce.class</name>
+                    <value>JobRunner</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Total Precipitation Job</value>
+                </property>
+                <property>
+                    <name>jobType</name>
+                    <value>total_precipitation</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <!-- End of the workflow -->
+    <end name="end"/>
+
+    <!-- Failure Handling -->
+    <kill name="fail">
+        <message>Workflow failed</message>
+    </kill>
+
+</workflow-app>
+

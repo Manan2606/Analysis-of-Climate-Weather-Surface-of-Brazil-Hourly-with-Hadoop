@@ -1,0 +1,38 @@
+Installing Oozie
+* sudo apt-get install maven
+* sudo apt-get install unzip
+* sudo apt-get install zip
+* wget http://archive.apache.org/dist/oozie/4.1.0/oozie-4.1.0.tar.gz
+* tar -zvxf oozie-4.1.0.tar.gz 
+* cd oozie-4.1.0
+* <mirror><id>central</id><url>https://repo.maven.apache.org/maven2</url><mirrorOf>central</mirrorOf></mirror>
+* mvn clean package assembly:single -P hadoop-2-DskipTests
+* cd distro/target/
+* tar -zvxf oozie-4.1.0-distro.tar.gz
+* sudo mv oozie-4.1.0 /usr/local/oozie-4.1.0
+* mkdir libext
+* wget https://archive.cloudera.com/gplextras/misc/ext-2.2.zip
+* cp -R ~/oozie-4.1.0/hadooplibs/hadoop-2/target/hadooplibs/hadooplib-2.3.0.oozie-4.1.0/* /usr/local/oozie-4.1.0/libext/
+* vi /home/ubuntu/hadoop-2.6.5/etc/hadoop/core-site.xml
+* <property><name>hadoop.proxyuser.ubuntu.hosts</name><value></value></property><property><name>hadoop.proxyuser.ubuntu.groups</name><value></value></property>
+* echo $USER
+* vi ~/.bashrc
+* export OOZIE_VERSION=4.1.0 export OOZIE_HOME=/usr/local/oozie-4.1.0 export PATH=$PATH:$OOZIE_HOME/bin
+* source ~/.bashrc
+* ./bin/oozie-setup.sh prepare-war
+* ./bin/ooziedb.sh create -sqlfile oozie.sql -run
+* bin/oozied.sh start
+
+
+Create Jobs:
+1. vi filename
+2. javac -classpath "/home/ubuntu/hadoop-2.6.5/etc/hadoop:/home/ubuntu/hadoop-2.6.5/share/hadoop/common/lib/:/home/ubuntu/hadoop-2.6.5/share/hadoop/common/:/home/ubuntu/hadoop-2.6.5/share/hadoop/hdfs:/home/ubuntu/hadoop-2.6.5/share/hadoop/hdfs/lib/:/home/ubuntu/hadoop-2.6.5/share/hadoop/hdfs/:/home/ubuntu/hadoop-2.6.5/share/hadoop/yarn/lib/:/home/ubuntu/hadoop-2.6.5/share/hadoop/yarn/:/home/ubuntu/hadoop-2.6.5/share/hadoop/mapreduce/lib/:/home/ubuntu/hadoop-2.6.5/share/hadoop/mapreduce/:/home/ubuntu/hadoop-2.6.5/contrib/capacity-scheduler/*.jar" -d . JobRunner.java AverageTemperatureMapper.java AverageTemperatureReducer.java TotalPrecipitationMapper.java TotalPrecipitationReducer.java MaxWindSpeedMapper.java MaxWindSpeedReducer.java
+3. jar -cvf WeatherAnalysisJobs.jar *.class
+4. hadoop jar WeatherAnalysisJobs.jar JobRunner total_precipitation /weather_data/north.csv /output/output_total_precipitation
+5. hadoop jar WeatherAnalysisJobs.jar JobRunner max_wind /weather_data/north.csv /output/output_max_wind
+6. hadoop jar WeatherAnalysisJobs.jar JobRunner avg_temp /weather_data/north.csv /output/output_avg_temp
+
+Output after the completion of the job:
+* hadoop fs -cat /output/output_avg_temp/part-r-00000
+* hadoop fs -cat /output/output_max_wind/part-r-00000
+* hadoop fs -cat /output/output_total_precipitation/part-r-00000
